@@ -1,0 +1,32 @@
+version: "3"
+services:
+  # 数据库
+  # mongo:
+  #   image: mongo:3.4
+  #   restart: alawys
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - "./volumes/mongo:/data/db"
+  #     - "./volumes/mongo-entrypoint/:/docker-entrypoint-initdb.d/"
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=root
+  #     - MONGO_INITDB_ROOT_PASSWORD=123456
+  #   command: mongod
+  
+  # 数据库
+  pg:
+    image: postgres:9.6.17-alpine
+    restart: always
+    ports:
+      - 54321:5432
+    environment:
+      - POSTGRES_USER=xxy # 用户名
+      - POSTGRES_PASSWORD=xxy # 数据库密码
+      - POSTGRES_DB=terminal # 数据库名
+  # 客户端
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 9000:8080

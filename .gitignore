@@ -1,0 +1,18 @@
+.idea
+.DS_Store
+docker/volumes
+bin
+volumes
+*.log
+logs
+
+### Go template
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
