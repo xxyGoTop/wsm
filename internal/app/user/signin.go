@@ -3,28 +3,29 @@ package user
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
-	"github.com/lib/pq"
 	"github.com/mitchellh/mapstructure"
+	"github.com/xxyGoTop/wsm/internal/app/config"
 	"github.com/xxyGoTop/wsm/internal/app/db"
 	"github.com/xxyGoTop/wsm/internal/app/exception"
 	"github.com/xxyGoTop/wsm/internal/app/schema"
 	"github.com/xxyGoTop/wsm/internal/lib/controller"
 	"github.com/xxyGoTop/wsm/internal/lib/helper"
 	"github.com/xxyGoTop/wsm/internal/lib/password"
+	"github.com/xxyGoTop/wsm/internal/lib/token"
 	"github.com/xxyGoTop/wsm/internal/lib/validator"
 	"time"
 )
 
-type SignUpWithUsernameParams struct {
-	Username string `json:"username" valid:"required~请输入用户名"`
+type SignInParams struct {
+	Account string `json:"account" valid:"required~请输入登录账号"`
 	Password string `json:"password" valid:"required~请输入密码"`
 }
 
-func SignUpWithUsername(c *controller.Context) (res schema.Response)  {
+func SigninWithUsername(c *controller.Context) (res schema.Response)  {
 	var (
-		input SignUpWithUsernameParams
 		err error
-		data schema.Profile
+		input SignInParams
+		data = &schema.ProfileWithToken{}
 		tx *gorm.DB
 	)
 
@@ -55,41 +56,31 @@ func SignUpWithUsername(c *controller.Context) (res schema.Response)  {
 		return
 	}
 
-	if err = validator.ValidateUsername(input.Username); err != nil {
-		return
+	userInfo := db.User{}
+
+	if validator.IsPhone(input.Account) {
+		userInfo.Phone = &input.Account
+	} else if validator.IsEmail(input.Account) {
+		userInfo.Email = &input.Account
+	} else {
+		userInfo.Username = input.Account
 	}
 
 	tx = db.Db.Begin()
 
-	userNum := 0
-
-	if err = tx.Model(db.User{}).Where("username = ?", input.Username).Count(&userNum).Error; err != nil {
+	if err = tx.Where(&userInfo).Last(&userInfo).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			err = exception.InvalidAccountOrPassword
+		}
 		return
 	}
 
-	if userNum != 0 {
-		err = exception.UserExist
+	if password.Verify(input.Password, userInfo.Password) == false {
+		err = exception.InvalidAccountOrPassword
 		return
 	}
 
-	passwordHash, err := password.Generate(input.Password)
-
-	if err != nil {
-		return
-	}
-
-	userInfo := db.User{
-		Username:  input.Username,
-		Password:  passwordHash,
-		NickName:  &input.Username,
-		Phone:     nil,
-		Email:     nil,
-		Status:    db.UserStatusInit,
-		Role:      pq.StringArray{},
-		Gender:    db.GenderUnknown,
-	}
-
-	if err = tx.Create(&userInfo).Error; err != nil {
+	if err = userInfo.CheckStatusValid(); err != nil {
 		return
 	}
 
@@ -99,6 +90,13 @@ func SignUpWithUsername(c *controller.Context) (res schema.Response)  {
 
 	data.CreatedAt = userInfo.CreatedAt.Format(time.RFC3339Nano)
 	data.UpdateAt = userInfo.UpdatedAt.Format(time.RFC3339Nano)
+
+	if t, er := token.Generate(config.Http.Secret, userInfo.Id); er != nil {
+		err = er
+		return
+	} else {
+		data.Token = t
+	}
 
 	return
 }

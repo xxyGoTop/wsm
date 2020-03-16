@@ -2,6 +2,8 @@
   <dictionary name="xiexiaoyang">
     <words>
       <w>csrf</w>
+      <w>signin</w>
+      <w>signup</w>
     </words>
   </dictionary>
 </component>

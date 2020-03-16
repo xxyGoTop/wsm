@@ -6,6 +6,7 @@ import (
 	"github.com/xxyGoTop/wsm/internal/app/config"
 	"github.com/xxyGoTop/wsm/internal/app/middleware"
 	"github.com/xxyGoTop/wsm/internal/app/schema"
+	"github.com/xxyGoTop/wsm/internal/app/user"
 	"github.com/xxyGoTop/wsm/internal/lib/controller"
 	"github.com/xxyGoTop/wsm/internal/lib/dotenv"
 	"net/http"
@@ -53,8 +54,8 @@ func init() {
 		// 认证类接口
 		{
 			authRouter := v1.Group("/auth")
-			authRouter.POST("/signup")
-			authRouter.POST("/signin")
+			authRouter.POST("/signup", controller.Router(user.SignUpWithUsername))
+			authRouter.POST("/signin", controller.Router(user.SigninWithUsername))
 		}
 	}
 
