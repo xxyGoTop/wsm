@@ -19,7 +19,7 @@ func Generate(secret, userId string) (tokenString string, err error)  {
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, c)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 
 	tokenString, err = token.SignedString([]byte(secret))
 

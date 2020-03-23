@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	usernameReg = regexp.MustCompile("^[\\w\\-]$]")
+	usernameReg = regexp.MustCompile("^[\\w\\-]+$")
 )
 
 func IsValidUsername(username string) bool  {
@@ -26,6 +26,6 @@ func IsEmail(email string) bool  {
 	return govalidator.IsEmail(email)
 }
 
-func IsPhone(phone stting) bool  {
+func IsPhone(phone string) bool  {
 	return util.IsPhone(phone)
 }

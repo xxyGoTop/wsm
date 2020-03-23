@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/xxyGoTop/wsm/internal/app/config"
 	"github.com/xxyGoTop/wsm/internal/app/exception"
 	"github.com/xxyGoTop/wsm/internal/app/schema"
 	"github.com/xxyGoTop/wsm/internal/lib/token"
@@ -43,6 +44,14 @@ func Authenticate(isAdmin bool) gin.HandlerFunc {
 					tokenString = s
 				}
 			}
+		}
+
+		if claims, er := token.Parse(config.Http.Secret, tokenString); err != nil {
+			err = er
+			status = exception.InvalidToken.Code()
+			return
+		} else {
+			c.Set(ContextUidField, claims.Uid)
 		}
 	}
 }

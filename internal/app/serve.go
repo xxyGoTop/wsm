@@ -29,7 +29,7 @@ func Serve() error {
 
 	log.Println("Server stopped")
 
-	os.Exit(o)
+	os.Exit(0)
 
 	return nil
 }

@@ -17,7 +17,7 @@ var Database database
 
 func init() {
 	Database.Driver = dotenv.GetByDefault("DB_Driver", "postgres")
-	Database.Host = dotenv.GetByDefault("DB_Host", "locahost")
+	Database.Host = dotenv.GetByDefault("DB_Host", "localhost")
 	Database.Port = dotenv.GetByDefault("DB_PORT", "54321")
 	Database.DatabaseName = dotenv.GetByDefault("DB_NAME", "terminal")
 	Database.Username = dotenv.GetByDefault("DB_USERNAME", "xxy")
